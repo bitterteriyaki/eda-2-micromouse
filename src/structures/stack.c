@@ -17,7 +17,7 @@ bool st_empty(Stack *st) {
 }
 
 void st_insert(Stack *st, int x, int y) {
-    st_item *vs = (st_item*)malloc(sizeof(st_item));
+    st_item *vs = (st_item*) malloc(sizeof(st_item));
 
     vs->next = st->top;
     vs->x = x;
@@ -32,22 +32,21 @@ st_item *st_top(Stack *st) {
     * Importante checar se o topo não está vazio.
     * Caso contrário, receberá um Segmentation Fault!
     */
-
     return st->top;
 }
 
 void st_pop(Stack *st) {
     if(st_empty(st))
         return;
-    
+
     st_item *top = st->top;
     st->top = top->next;
     st->size--;
     free(top);
 }
 
-Stack *init_stack() {
-    Stack *st = (Stack*)malloc(sizeof(Stack));
+Stack *st_init() {
+    Stack *st = (Stack*) malloc(sizeof(Stack));
     st->size = 0;
     st->top = NULL;
 
