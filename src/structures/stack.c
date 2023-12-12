@@ -52,3 +52,13 @@ Stack *st_init() {
 
     return st;
 }
+
+st_item *st_item_insert(st_item *st, int x, int y) {
+    st_item *top = (st_item*)malloc((sizeof(st_item)));
+
+    top->x = x;
+    top->y = y;
+    top->next = st;
+
+    return top;
+}
