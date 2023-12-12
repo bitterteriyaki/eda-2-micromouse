@@ -1,21 +1,12 @@
 #include <stdio.h>
 
-void flush() {
-    fflush(stdout);
-}
-
-int read() {
-    int value;
-    scanf("%d", &value);
-
-    return value;
-}
-
 int make_move(char c) {
     printf("%c\n", c);
+    fflush(stdout);
     
-    int value = read();
-    flush();
+    int value;
+    scanf("%d", &value);
+    fflush(stdin);
 
     return value;
 }
