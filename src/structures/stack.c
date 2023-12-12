@@ -1,64 +1,45 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdlib.h>
+#pragma once
 
-typedef struct Stack {
-    struct st_item *top;
-    int size;
-} Stack;
+#include <stdio.h>
+#include <stdlib.h>
+#include "../utils/directions.c"
 
 typedef struct st_item {
-    int x, y;
+    axis sp;
     struct st_item *next;
 } st_item;
 
-bool st_empty(Stack *st) {
-    return st->size == 0;
+typedef struct {
+    st_item *top;
+    int size;
+} stack;
+
+stack *st_init() {
+    stack *s = malloc(sizeof(stack));
+    s->top = NULL;
+    s->size = 0;
+    return s;
 }
 
-void st_insert(Stack *st, int x, int y) {
-    st_item *vs = (st_item*) malloc(sizeof(st_item));
-
-    vs->next = st->top;
-    vs->x = x;
-    vs->y = y;
-
-    st->top = vs;
-    st->size++;
+void st_insert(stack *s, axis sp) {
+    st_item *item = malloc(sizeof(st_item));
+    item->sp = sp;
+    item->next = s->top;
+    s->top = item;
+    s->size++;
 }
 
-st_item *st_top(Stack *st) {
-    /*
-    * Importante checar se o topo não está vazio.
-    * Caso contrário, receberá um Segmentation Fault!
-    */
-    return st->top;
-}
+void st_print(stack *s) {
+    st_item *item = s->top;
 
-void st_pop(Stack *st) {
-    if(st_empty(st))
-        return;
+    while (item != NULL) {
+        printf("{x: %d, y: %d}", item->sp.x, item->sp.y);
 
-    st_item *top = st->top;
-    st->top = top->next;
-    st->size--;
-    free(top);
-}
+        if (item->next != NULL)
+            printf(" -> ");
 
-Stack *st_init() {
-    Stack *st = (Stack*) malloc(sizeof(Stack));
-    st->size = 0;
-    st->top = NULL;
+        item = item->next;
+    }
 
-    return st;
-}
-
-st_item *st_item_insert(st_item *st, int x, int y) {
-    st_item *top = (st_item*)malloc((sizeof(st_item)));
-
-    top->x = x;
-    top->y = y;
-    top->next = st;
-
-    return top;
+    printf("\n");
 }
