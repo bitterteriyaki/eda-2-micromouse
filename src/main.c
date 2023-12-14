@@ -1,142 +1,116 @@
-#include <stdio.h>
-#include "utils/directions.c"
-#include "utils/grid.c"
-#include "structures/stack.c"
+#include <stdbool.h>
+#include "structures/grid.c"
+#include "structures/dfs.c"
 
 #ifdef DEBUG
-#define DEBUG_TEST 1
+#define DEBUG_TEST true
+#define MAX 11
 #else
-#define DEBUG_TEST 0
+#define DEBUG_TEST false
+#define MAX 300
 #endif
 
 #define debug(fmt, ...) \
         do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
-                                __LINE__, __func__, __VA_ARGS__); } while (0)  
+                                __LINE__, __func__, __VA_ARGS__); } while (0)
 
-#define MAXN 300
+void solve() {
+    cell grid[MAX][MAX];
+    // We assume that we are facing up and that our starting position is the
+    // center of the grid.
+    direction current_direction = UP;
+    point position = {(MAX - 1) / 2, (MAX - 1) / 2};
 
-enum Status {
-    WALL,
-    VISITED,
-    EXIT,
-    NOT_VISITED
-};
+    // We start by initializing the grid and marking the current cell as
+    // visited.
+    grid_init(MAX, grid);
+    grid[position.x][position.y].visited = true;
 
-int grid[MAXN][MAXN];
+    // We perform a depth-first search on the grid to find the exit.
+    node *path = dfs(MAX, grid, position, &current_direction, NULL);
 
-st_item *dfs(axis sp, enum Direction *curr_dir, st_item *path) {
-    if (grid[sp.x][sp.y] == (int) WALL)
-        return NULL;
-    
-    path = st_item_insert(path, sp.x, sp.y);
+    // Now that we have found the exit, we go back to the starting position.
+    node *reverse_path = node_insert(NULL, path->coords);
 
-    if (grid[sp.x][sp.y] == EXIT)
-        return path;
+    int last_x = path->coords.x, last_y = path->coords.y;
+    path = node_pop(path);
 
-    debug("currently direction: %s\n", directions[(int) *curr_dir]);
-    
-    
-    // Firstly, we give priority to FORWARD.
-    int x = dir4[(int) *curr_dir].x + sp.x;
-    int y = dir4[(int) *curr_dir].y + sp.y;
+    debug("%s", "Going back to the starting position...\n");
+    while (path != NULL) {
+        int x = path->coords.x, y = path->coords.y;
+        reverse_path = node_insert(reverse_path, path->coords);
 
-    st_item *st = NULL;
-    enum Direction original_direction = *curr_dir;
+        point movement = {x - last_x, y - last_y};
+        last_x = x, last_y = y;
 
-    if (grid[x][y] == NOT_VISITED) {
-        debug("[first] asking forward %s\n", directions[(int) *curr_dir]);
-        grid[x][y] = make_request(*curr_dir, *curr_dir);
-        st = dfs((axis){x, y}, curr_dir, path);
-    }
+        reverse_movement(&current_direction, movement, false);
+        path = node_pop(path);
 
-    if (st != NULL)
-        return st;
-    
-    // Now, we make the other requests. 
-    for (int i = 0; i < 4; i++) {
-        x = dir4[i].x + sp.x, y = dir4[i].y + sp.y;
+        int forward = 1;
 
-        if (grid[x][y] == NOT_VISITED) {
-            debug("[second] asking %s to %s\n", directions[(int) *curr_dir], directions[i]);
-            debug("movement: %d %d\n", dir4[i].x, dir4[i].y);
-            grid[x][y] = make_request(*curr_dir, i);
-            *curr_dir = i;
+        while (path != NULL) {
+            int xt = path->coords.x, yt = path->coords.y;
+            point movementt = {xt - last_x, yt - last_y};
 
-            st = dfs((axis){x, y}, curr_dir, path);
-
-            if (st != NULL)
-                return st;
+            if (movementt.x == movement.x && movementt.y == movement.y) {
+                forward++;
+                last_x = xt, last_y = yt;
+                reverse_path = node_insert(reverse_path, path->coords);
+                path = node_pop(path);
+            }
+            else
+                break;
         }
+
+        for (int i = 4; i >= 1; i--) {
+            while (forward >= i) {
+                ask(movements[i]);
+                forward -= i;
+            }
+        }
+
+        if (DEBUG_TEST)
+            grid_print(MAX, grid, (point) {last_x, last_y }, current_direction);
     }
-    
-    /*
-    * Once we already visited all the possible paths, we need to go back.
-    */
-    
-    st_item old_path = *path->next;
-    int old_x = old_path.x, old_y = old_path.y;
 
-    axis movement = (axis) {old_x - sp.x, old_y - sp.y};
+    // We print the path that Cleitinho took to find the exit.
+    debug("%s", "Now going back to exit:\n");
+    reverse_path = node_pop(reverse_path);
 
-    debug("[back] movement: %d %d\n", movement.x, movement.y);
-    reverse_movement(curr_dir, movement);
-    debug("[back] current direction: %s\n", directions[(int) *curr_dir]);
+    while(reverse_path != NULL) {
+        int x = reverse_path->coords.x, y = reverse_path->coords.y;
+        point movement = {x - last_x, y - last_y};
+        last_x = x, last_y = y;
 
-    return NULL;
+        reverse_movement(&current_direction, movement, false);
+        reverse_path = node_pop(reverse_path);
+
+        int forward = 1;
+        while(reverse_path != NULL) {
+            int xt = reverse_path->coords.x, yt = reverse_path->coords.y;
+            point movementt = {xt - last_x, yt - last_y};
+
+            if (movementt.x == movement.x && movementt.y == movement.y) {
+                forward++;
+                last_x = xt, last_y = yt;
+                reverse_path = node_pop(reverse_path);
+            }
+            else
+                break;
+        }
+
+        for (int i = 4; i >= 1; i--)
+            while(forward >= i) {
+                ask(movements[i]);
+                forward -= i;
+            }
+
+        if (DEBUG_TEST)
+            grid_print(MAX, grid, position, current_direction);
+    }
 }
 
-/*
-* [S^]
-* [WE]
-*/
-
 int main() {
-    enum Direction current_direction = UP;
-
-    for (int i = 0; i < MAXN; i++)
-        for (int j = 0; j < MAXN; j++)
-            grid[i][j] = (int) NOT_VISITED;
-
-
-    axis sp = (axis) {MAXN / 2, MAXN / 2};
-    grid[sp.x][sp.y] = VISITED;
-    
-    // print_grid(MAXN, grid, sp);
-
-    st_item *path = dfs(sp, &current_direction, NULL);
-    Stack *reverse_path = init_stack();
-
-    int last_x = path->x, last_y = path->y;
-    st_insert(reverse_path, last_x, last_y);
-    
-    path = path->next;
-    debug("[reversing] current direction: %s\n", directions[(int) current_direction]);
-
-    while (path != NULL) {
-        int x = path->x, y = path->y;
-        st_insert(reverse_path, x, y);
-
-        axis movement = (axis) {x - last_x, y - last_y};
-        last_x = x, last_y = y;
-        reverse_movement(&current_direction, movement);
-        debug("current direction: %s\n", directions[(int) current_direction]);
-
-        path = path->next;
-    }
-
-    debug("%s", "now printing the reverse path\n");
-    st_pop(reverse_path);
-
-    while (!st_empty(reverse_path)) {
-        st_item *top = st_top(reverse_path);
-        int x = top->x, y = top->y;
-
-        axis movement = (axis) {x - last_x, y - last_y};
-        last_x = x, last_y = y;
-        debug("current direction: %s\n", directions[(int) current_direction]);
-        reverse_movement(&current_direction, movement);
-        st_pop(reverse_path);
-    }
-
+    solve();
     return 0;
 }
