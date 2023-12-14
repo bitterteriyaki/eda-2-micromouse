@@ -90,8 +90,10 @@ void _print_cells(
     for (int j = 0; j < size; j++) {
         if (position.x == i - 1 && position.y == j)
             printf(" %s ", symbols[current_direction]);
+        else if (grid[i - 1][j].is_exit)
+            printf(" 🏳️ ");
         else if (grid[i - 1][j].visited)
-            printf(" * ");
+            printf(" ♦ ");
         else
             printf("   ");
 
