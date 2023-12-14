@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include "structures/grid.c"
 #include "structures/dfs.c"
+#include "algorithms/queue.c"
 
 #ifdef DEBUG
 #define DEBUG_TEST true
@@ -86,6 +87,7 @@ void solve() {
         reverse_path = node_pop(reverse_path);
 
         int forward = 1;
+
         while (reverse_path != NULL) {
             int xt = reverse_path->coords.x, yt = reverse_path->coords.y;
             point movementt = {xt - last_x, yt - last_y};
