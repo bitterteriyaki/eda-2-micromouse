@@ -77,8 +77,10 @@ node *dfs(
                     symbols[next_direction]
                 );
 
-            if (grid[next_position.x][next_position.y].visited ||
-                grid[x][y].walls[next_direction])
+            if (
+                grid[next_position.x][next_position.y].visited
+                || grid[x][y].walls[next_direction]
+            )
                 continue;
 
             // Now we try to visit.
