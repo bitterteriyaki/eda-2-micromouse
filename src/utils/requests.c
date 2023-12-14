@@ -39,7 +39,7 @@ status forward() {
     return ask('w');
 }
 
-status rotate_and_forward(direction source, direction target) {
+status rotate_and_forward(direction source, direction target, bool forward_enabled) {
     if((source == UP && target == DOWN) || (source == DOWN && target == UP) || (source == LEFT && target == RIGHT) || (source == RIGHT && target == LEFT)) {
         ask('l');
         ask('l');
@@ -51,5 +51,5 @@ status rotate_and_forward(direction source, direction target) {
         ask('r');
     }
 
-    return forward();
+    return (forward_enabled ? forward() : SUCCESS);
 }

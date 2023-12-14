@@ -43,12 +43,34 @@ void solve() {
         point movement = {x - last_x, y - last_y};
         last_x = x, last_y = y;
 
-        reverse_movement(&current_direction, movement);
+        reverse_movement(&current_direction, movement, false);
 
         path = node_pop(path);
 
+        int forward = 1;
+        while(path != NULL) {
+            int xt = path->coords.x, yt = path->coords.y;
+            point movementt = {xt - last_x, yt - last_y};
+
+            if(movementt.x == movement.x && movementt.y == movement.y) {
+                forward++;
+                last_x = xt, last_y = yt;
+                reverse_path = node_insert(reverse_path, path->coords);
+                path = node_pop(path);
+            }
+            else
+                break;
+        }
+
+        for(int i = 4; i >= 1; i--) {
+            while(forward >= i) {
+                ask(movements[i]);
+                forward -= i;
+            }
+        }
+
         if(DEBUG_TEST)
-            grid_print(MAX, grid, position, current_direction);
+            grid_print(MAX, grid, (point) {last_x, last_y }, current_direction);
     }
 
     // We print the path that Cleitinho took to find the exit.
@@ -60,9 +82,30 @@ void solve() {
         point movement = {x - last_x, y - last_y};
         last_x = x, last_y = y;
 
-        reverse_movement(&current_direction, movement);
+        reverse_movement(&current_direction, movement, false);
 
         reverse_path = node_pop(reverse_path);
+
+        int forward = 1;
+        while(reverse_path != NULL) {
+            int xt = reverse_path->coords.x, yt = reverse_path->coords.y;
+            point movementt = {xt - last_x, yt - last_y};
+
+            if(movementt.x == movement.x && movementt.y == movement.y) {
+                forward++;
+                last_x = xt, last_y = yt;
+                reverse_path = node_pop(reverse_path);
+            }
+            else
+                break;
+        }
+
+        for(int i = 4; i >= 1; i--) {
+            while(forward >= i) {
+                ask(movements[i]);
+                forward -= i;
+            }
+        }
 
         if(DEBUG_TEST)
             grid_print(MAX, grid, position, current_direction);

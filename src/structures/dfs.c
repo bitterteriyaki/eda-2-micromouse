@@ -3,6 +3,7 @@
 #include "grid.c"
 #include "../utils/requests.c"
 #include "../algorithms/linked_list.c"
+#include <stdbool.h>
 
 #ifdef DEBUG
 #define DEBUG_TEST true
@@ -14,10 +15,10 @@
         do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
                                 __LINE__, __func__, __VA_ARGS__); } while (0)
 
-void reverse_movement(direction *curr_dir, point movement) {    
+void reverse_movement(direction *curr_dir, point movement, bool forward_enabled) {    
     for (int i = 0; i < 4; i++)
         if (dir4[i].x == movement.x && dir4[i].y == movement.y) {
-            rotate_and_forward(*curr_dir, (direction) i);
+            rotate_and_forward(*curr_dir, (direction) i, forward_enabled);
             *curr_dir = (direction) i;
             break;
         }
@@ -82,7 +83,7 @@ node *dfs(
                 symbols[next_direction]
             );
             
-            int response = rotate_and_forward(*current_direction, next_direction);
+            int response = rotate_and_forward(*current_direction, next_direction, true);
             *current_direction = next_direction;
 
             if (DEBUG_TEST)
@@ -122,7 +123,7 @@ node *dfs(
     debug("Stuck at (%d, %d). Going back to (%d, %d).\n", x, y, path->coords.x, path->coords.y);
 
     point movement = (point) { path->coords.x - x, path->coords.y - y };
-    reverse_movement(current_direction, movement);
+    reverse_movement(current_direction, movement, true);
 
     return NULL;
 }

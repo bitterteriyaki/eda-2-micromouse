@@ -9,3 +9,9 @@ typedef enum {
     DOWN,
     RIGHT
 } direction;
+
+/*
+* This represents the best command to use when Cleitinho goes forward.
+* The first item is ignored.
+*/
+const char movements[] = {'n', 'w', 'j', 'R', 's'};
