@@ -74,7 +74,7 @@ void _print_vertical_lines(int size, int i, cell grid[size][size]) {
         else
             printf("   ");
     }
-        
+
     printf("+\n");
 }
 
@@ -138,24 +138,24 @@ void grid_print(
 * that he goes in the right direction according to his current direction.
 */
 direction get_left(direction dir) {
-    if(dir == UP) return LEFT;
-    if(dir == LEFT) return DOWN;
-    if(dir == DOWN) return RIGHT;
-    if(dir == RIGHT) return UP;
+    if (dir == UP) return LEFT;
+    if (dir == LEFT) return DOWN;
+    if (dir == DOWN) return RIGHT;
+    if (dir == RIGHT) return UP;
 }
 
 direction get_right(direction dir) {
-    if(dir == UP) return RIGHT;
-    if(dir == RIGHT) return DOWN;
-    if(dir == DOWN) return LEFT;
-    if(dir == LEFT) return UP;
+    if (dir == UP) return RIGHT;
+    if (dir == RIGHT) return DOWN;
+    if (dir == DOWN) return LEFT;
+    if (dir == LEFT) return UP;
 }
 
 direction get_down(direction dir) {
-    if(dir == UP) return DOWN;
-    if(dir == DOWN) return UP;
-    if(dir == LEFT) return RIGHT;
-    if(dir == RIGHT) return LEFT;
+    if (dir == UP) return DOWN;
+    if (dir == DOWN) return UP;
+    if (dir == LEFT) return RIGHT;
+    if (dir == RIGHT) return LEFT;
 }
 
 direction get_up(direction dir) {
@@ -163,16 +163,16 @@ direction get_up(direction dir) {
 }
 
 direction get_context(direction dir, direction curr) {
-    if(dir == UP) return get_up(curr);
-    if(dir == DOWN) return get_down(curr);
-    if(dir == LEFT) return get_left(curr);
-    if(dir == RIGHT) return get_right(curr);
+    if (dir == UP) return get_up(curr);
+    if (dir == DOWN) return get_down(curr);
+    if (dir == LEFT) return get_left(curr);
+    if (dir == RIGHT) return get_right(curr);
 }
 
 /*
  * This function returns the direction that Cleitinho should face in order to
  * move from the source point to the target point.
- * 
+ *
  * @param source The source point.
  * @param target The target point.
  */
@@ -187,7 +187,7 @@ direction get_next_direction(direction source, direction target) {
         steps = 2;
     else if (target == LEFT)
         steps = 3;
-    
+
     return (direction) ((source + steps) % 4);
 }
 

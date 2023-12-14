@@ -44,15 +44,15 @@ void solve() {
         last_x = x, last_y = y;
 
         reverse_movement(&current_direction, movement, false);
-
         path = node_pop(path);
 
         int forward = 1;
-        while(path != NULL) {
+
+        while (path != NULL) {
             int xt = path->coords.x, yt = path->coords.y;
             point movementt = {xt - last_x, yt - last_y};
 
-            if(movementt.x == movement.x && movementt.y == movement.y) {
+            if (movementt.x == movement.x && movementt.y == movement.y) {
                 forward++;
                 last_x = xt, last_y = yt;
                 reverse_path = node_insert(reverse_path, path->coords);
@@ -62,14 +62,14 @@ void solve() {
                 break;
         }
 
-        for(int i = 4; i >= 1; i--) {
-            while(forward >= i) {
+        for (int i = 4; i >= 1; i--) {
+            while (forward >= i) {
                 ask(movements[i]);
                 forward -= i;
             }
         }
 
-        if(DEBUG_TEST)
+        if (DEBUG_TEST)
             grid_print(MAX, grid, (point) {last_x, last_y }, current_direction);
     }
 
@@ -83,7 +83,6 @@ void solve() {
         last_x = x, last_y = y;
 
         reverse_movement(&current_direction, movement, false);
-
         reverse_path = node_pop(reverse_path);
 
         int forward = 1;
@@ -91,7 +90,7 @@ void solve() {
             int xt = reverse_path->coords.x, yt = reverse_path->coords.y;
             point movementt = {xt - last_x, yt - last_y};
 
-            if(movementt.x == movement.x && movementt.y == movement.y) {
+            if (movementt.x == movement.x && movementt.y == movement.y) {
                 forward++;
                 last_x = xt, last_y = yt;
                 reverse_path = node_pop(reverse_path);
@@ -100,23 +99,16 @@ void solve() {
                 break;
         }
 
-        for(int i = 4; i >= 1; i--) {
+        for (int i = 4; i >= 1; i--)
             while(forward >= i) {
                 ask(movements[i]);
                 forward -= i;
             }
-        }
 
-        if(DEBUG_TEST)
+        if (DEBUG_TEST)
             grid_print(MAX, grid, position, current_direction);
     }
 }
-
-/*
-* Grid example:
-* [^S]
-* [EW]
-*/
 
 int main() {
     solve();

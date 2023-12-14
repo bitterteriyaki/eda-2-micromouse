@@ -39,17 +39,33 @@ status forward() {
     return ask('w');
 }
 
-status rotate_and_forward(direction source, direction target, bool forward_enabled) {
-    if((source == UP && target == DOWN) || (source == DOWN && target == UP) || (source == LEFT && target == RIGHT) || (source == RIGHT && target == LEFT)) {
+status rotate_and_forward(
+    direction source,
+    direction target,
+    bool forward_enabled) {
+    if (
+        (source == UP && target == DOWN)
+        || (source == DOWN && target == UP)
+        || (source == LEFT && target == RIGHT)
+        || (source == RIGHT && target == LEFT)
+    ) {
         ask('l');
         ask('l');
     }
-    else if((source == UP && target == LEFT) || (source == LEFT && target == DOWN) || (source == DOWN && target == RIGHT) || (source == RIGHT && target == UP)) {
+    else if (
+        (source == UP && target == LEFT)
+        || (source == LEFT && target == DOWN)
+        || (source == DOWN && target == RIGHT)
+        || (source == RIGHT && target == UP)
+    )
         ask('l');
-    }
-    else if((source == UP && target == RIGHT) || (source == RIGHT && target == DOWN) || (source == DOWN && target == LEFT) || (source == LEFT && target == UP)) {
+    else if (
+        (source == UP && target == RIGHT)
+        || (source == RIGHT && target == DOWN)
+        || (source == DOWN && target == LEFT)
+        || (source == LEFT && target == UP)
+    )
         ask('r');
-    }
 
     return (forward_enabled ? forward() : SUCCESS);
 }

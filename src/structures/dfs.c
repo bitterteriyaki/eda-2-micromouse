@@ -15,7 +15,7 @@
         do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
                                 __LINE__, __func__, __VA_ARGS__); } while (0)
 
-void reverse_movement(direction *curr_dir, point movement, bool forward_enabled) {    
+void reverse_movement(direction *curr_dir, point movement, bool forward_enabled) {
     for (int i = 0; i < 4; i++)
         if (dir4[i].x == movement.x && dir4[i].y == movement.y) {
             rotate_and_forward(*curr_dir, (direction) i, forward_enabled);
@@ -42,14 +42,14 @@ node *dfs(
 ) {
     if (DEBUG_TEST)
         grid_print(size, grid, position, *current_direction);
-    
+
     int x = position.x, y = position.y;
     path = node_insert(path, position);
-    
+
     // If we are at the exit, then we are done.
     if (grid[x][y].is_exit)
         return path;
-    
+
     node *exit = NULL;
 
     /*
@@ -66,11 +66,19 @@ node *dfs(
             * us, then we cannot move.
             */
 
-            if(grid[x][y].walls[next_direction])
-                debug("Wall found at (%d, %d). Cannot move to (%d, %d). Current Direction: %s. Next Direction: %s\n", x, y, next_position.x, next_position.y, symbols[*current_direction], symbols[next_direction]);
+            if (grid[x][y].walls[next_direction])
+                debug(
+                    "Wall found at (%d, %d). Cannot move to (%d, %d). Current Direction: %s. Next Direction: %s\n",
+                    x,
+                    y,
+                    next_position.x,
+                    next_position.y,
+                    symbols[*current_direction],
+                    symbols[next_direction]
+                );
 
             if (grid[next_position.x][next_position.y].visited ||
-                grid[x][y].walls[next_direction]) 
+                grid[x][y].walls[next_direction])
                 continue;
 
             // Now we try to visit.
@@ -82,7 +90,7 @@ node *dfs(
                 symbols[*current_direction],
                 symbols[next_direction]
             );
-            
+
             int response = rotate_and_forward(*current_direction, next_direction, true);
             *current_direction = next_direction;
 
@@ -94,8 +102,18 @@ node *dfs(
                 grid[x][y].walls[next_direction] = true;
                 grid[next_position.x][next_position.y].walls[opposite] = true;
 
-                debug("Set wall at (%d, %d) in direction %s\n", x, y, symbols[next_direction]);
-                debug("Set wall at (%d, %d) in direction %s\n", next_position.x, next_position.y, symbols[opposite]);
+                debug(
+                    "Set wall at (%d, %d) in direction %s\n",
+                    x,
+                    y,
+                    symbols[next_direction]
+                );
+                debug(
+                    "Set wall at (%d, %d) in direction %s\n",
+                    next_position.x,
+                    next_position.y,
+                    symbols[opposite]
+                );
 
                 if (DEBUG_TEST)
                     grid_print(size, grid, position, *current_direction);
@@ -112,15 +130,21 @@ node *dfs(
 
             exit = dfs(size, grid, next_position, current_direction, path);
 
-            if (exit != NULL) 
+            if (exit != NULL)
                 return exit;
         }
     }
 
     // If we reach this point, then we are stuck. We need to backtrack.
     debug("%s\n", "Stuck. Backtracking...");
+    debug(
+        "Stuck at (%d, %d). Going back to (%d, %d).\n",
+        x,
+        y,
+        path->coords.x,
+        path->coords.y
+    );
     path = node_pop(path);
-    debug("Stuck at (%d, %d). Going back to (%d, %d).\n", x, y, path->coords.x, path->coords.y);
 
     point movement = (point) { path->coords.x - x, path->coords.y - y };
     reverse_movement(current_direction, movement, true);
