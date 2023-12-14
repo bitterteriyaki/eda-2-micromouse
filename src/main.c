@@ -77,7 +77,7 @@ void solve() {
     debug("%s", "Now going back to exit:\n");
     reverse_path = node_pop(reverse_path);
 
-    while(reverse_path != NULL) {
+    while (reverse_path != NULL) {
         int x = reverse_path->coords.x, y = reverse_path->coords.y;
         point movement = {x - last_x, y - last_y};
         last_x = x, last_y = y;
@@ -86,7 +86,7 @@ void solve() {
         reverse_path = node_pop(reverse_path);
 
         int forward = 1;
-        while(reverse_path != NULL) {
+        while (reverse_path != NULL) {
             int xt = reverse_path->coords.x, yt = reverse_path->coords.y;
             point movementt = {xt - last_x, yt - last_y};
 
@@ -100,7 +100,7 @@ void solve() {
         }
 
         for (int i = 4; i >= 1; i--)
-            while(forward >= i) {
+            while (forward >= i) {
                 ask(movements[i]);
                 forward -= i;
             }
