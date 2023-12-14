@@ -1,43 +1,58 @@
 #pragma once
 
 #include <stdio.h>
-#include "directions.c"
 
-int make_move(char c) {
-    printf("%c\n", c);
+typedef enum {
+    SUCCESS,
+    FAILED
+} status;
+
+/*
+ * This function asks the judge for the value returned by the server.
+ *
+ * @param request The request to send to the server.
+ * @return The value returned by the server.
+ */
+int ask(char request) {
+    int response;
+
+    printf("%c\n", request);
     fflush(stdout);
 
-    int value;
-    scanf("%d", &value);
+    scanf("%d", &response);
     fflush(stdin);
 
-    return value;
+    return response;
 }
 
-int make_request(Direction source, Direction target) {
-    if (
-        (source == UP && target == DOWN)
-        || (source == DOWN && target == UP)
-        || (source == LEFT && target == RIGHT)
-        || (source == RIGHT && target == LEFT)
-    ) {
-        make_move('l');
-        make_move('l');
-    } else if (
-        (source == UP && target == LEFT)
-        || (source == LEFT && target == DOWN)
-        || (source == DOWN && target == RIGHT)
-        || (source == RIGHT && target == UP)
-    ) {
-        make_move('l');
-    } else if (
-        (source == UP && target == RIGHT)
-        || (source == RIGHT && target == DOWN)
-        || (source == DOWN && target == LEFT)
-        || (source == LEFT && target == UP)
-    ) {
-        make_move('r');
-    }
-
-    return make_move('w');
+/*
+ * This function asks the judge to move Cleitinho forward.
+ *
+ * @return The value returned by the server. If the value is 1, then Cleitinho
+ * was able to move forward. If the value is 0, then Cleitinho was not able to
+ * move forward (there is a wall in front of him).
+ */
+status forward() {
+    return ask('w');
 }
+
+status rotate_and_forward(direction source, direction target) {
+    int a = (source - target + 4) % 4;
+    int b = (target - source + 4) % 4;
+
+    // If the directions are the same, then we just move forward.
+    if (a == b)
+        return forward();
+
+    // If it is "cheaper" to rotate left, then we rotate left. Otherwise, we
+    // rotate right.
+    if (a < b)
+        for (int i = 0; i < a; i++)
+            ask('l');
+    else
+        for (int i = 0; i < b; i++)
+            ask('r');
+
+    return forward();
+}
+

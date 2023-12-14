@@ -4,4 +4,5 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   CMD="gcc-13"
 fi
 
-$CMD src/main.c -E -D DEBUG > output.c
+$CMD src/main.c -E -D DEBUG | $CMD -xc - -o main.out
+./main.out
