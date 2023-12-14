@@ -1,10 +1,13 @@
 #pragma once
 
 #include <stdio.h>
+#include "../structures/grid.c"
+#include "../structures/directions.c"
 
 typedef enum {
+    FAILED,
     SUCCESS,
-    FAILED
+    EXIT
 } status;
 
 /*
@@ -37,22 +40,16 @@ status forward() {
 }
 
 status rotate_and_forward(direction source, direction target) {
-    int a = (source - target + 4) % 4;
-    int b = (target - source + 4) % 4;
-
-    // If the directions are the same, then we just move forward.
-    if (a == b)
-        return forward();
-
-    // If it is "cheaper" to rotate left, then we rotate left. Otherwise, we
-    // rotate right.
-    if (a < b)
-        for (int i = 0; i < a; i++)
-            ask('l');
-    else
-        for (int i = 0; i < b; i++)
-            ask('r');
+    if((source == UP && target == DOWN) || (source == DOWN && target == UP) || (source == LEFT && target == RIGHT) || (source == RIGHT && target == LEFT)) {
+        ask('l');
+        ask('l');
+    }
+    else if((source == UP && target == LEFT) || (source == LEFT && target == DOWN) || (source == DOWN && target == RIGHT) || (source == RIGHT && target == UP)) {
+        ask('l');
+    }
+    else if((source == UP && target == RIGHT) || (source == RIGHT && target == DOWN) || (source == DOWN && target == LEFT) || (source == LEFT && target == UP)) {
+        ask('r');
+    }
 
     return forward();
 }
-

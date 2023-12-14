@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "directions.c"
+#include "../utils/requests.c"
 
 /*
  * This struct represents a cell in the grid. It is intended to be used with
@@ -16,6 +18,7 @@
 typedef struct {
     bool walls[4];
     bool visited;
+    bool is_exit;
 } cell;
 
 /*
@@ -29,19 +32,16 @@ typedef struct {
     int y;
 } point;
 
-point dir4[] = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
-char *symbols[] = {"↑", "→", "↓", "←"};
-
 /*
- * This enum represents the four directions that Cleitinho can face. We will
- * use this enum to represent the direction that Cleitinho is facing.
- */
-typedef enum {
-    UP,
-    RIGHT,
-    DOWN,
-    LEFT
-} direction;
+* We define an array of four points, where each point represents a direction
+* Directions are represented as follows:
+* 0: UP
+* 1: LEFT
+* 2: DOWN
+* 3: RIGHT
+*/
+point dir4[] = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
+char *symbols[] = {"↑", "←", "↓", "→"};
 
 /*
  * This function initializes the grid by setting all of the walls of each cell
@@ -55,7 +55,7 @@ typedef enum {
 void grid_init(int size, cell grid[size][size]) {
     for (int i = 0; i < size; i++)
         for (int j = 0; j < size; j++)
-            grid[i][j] = (cell) {{false, false, false, false}, false};
+            grid[i][j] = (cell) {{false, false, false, false}, false, false};
 }
 
 
@@ -65,33 +65,55 @@ void _print_horizontal_line(int size) {
     printf("+\n");
 }
 
-void _print_vertical_lines(int size) {
-    for (int j = 0; j < size; j++)
-        printf("+   ");
+void _print_vertical_lines(int size, int i, cell grid[size][size]) {
+    for (int j = 0; j < size; j++) {
+        printf("+");
+
+        if (grid[i][j].walls[UP])
+            printf("---");
+        else
+            printf("   ");
+    }
+        
     printf("+\n");
 }
 
 void _print_cells(
     int size,
-    int index,
+    int i,
+    cell grid[size][size],
     point position,
     direction current_direction
 ) {
     printf("|");
 
     for (int j = 0; j < size; j++) {
-        if (position.x == j && position.y == index - 1)
+        if (position.x == i - 1 && position.y == j)
             printf(" %s ", symbols[current_direction]);
+        else if (grid[i - 1][j].visited)
+            printf(" * ");
         else
             printf("   ");
 
         if (j != size - 1)
-            printf(" ");
+            if (grid[i - 1][j].walls[RIGHT])
+                printf("|");
+            else
+                printf(" ");
     }
 
     printf("|\n");
 }
 
+/*
+ * This function prints the grid in a human-readable format.
+ *
+ * @param size The size of the grid.
+ * @param grid A 2D array of cells representing the grid.
+ * @param position The current position of Cleitinho in the grid.
+ * @param current_direction The current direction that Cleitinho is facing.
+ * @return void
+ */
 void grid_print(
     int size,
     cell grid[size][size],
@@ -102,11 +124,73 @@ void grid_print(
         if (i == 0 || i == size + 1)
             _print_horizontal_line(size);
         else {
-            _print_cells(size, i, position, current_direction);
+            _print_cells(size, i, grid, position, current_direction);
 
             if (i != size)
-                _print_vertical_lines(size);
+                _print_vertical_lines(size, i, grid);
         }
 
     printf("\n");
+}
+
+/*
+* Once Cleitinho is able to change directions, we need to make sure
+* that he goes in the right direction according to his current direction.
+*/
+direction get_left(direction dir) {
+    if(dir == UP) return LEFT;
+    if(dir == LEFT) return DOWN;
+    if(dir == DOWN) return RIGHT;
+    if(dir == RIGHT) return UP;
+}
+
+direction get_right(direction dir) {
+    if(dir == UP) return RIGHT;
+    if(dir == RIGHT) return DOWN;
+    if(dir == DOWN) return LEFT;
+    if(dir == LEFT) return UP;
+}
+
+direction get_down(direction dir) {
+    if(dir == UP) return DOWN;
+    if(dir == DOWN) return UP;
+    if(dir == LEFT) return RIGHT;
+    if(dir == RIGHT) return LEFT;
+}
+
+direction get_up(direction dir) {
+    return dir;
+}
+
+direction get_context(direction dir, direction curr) {
+    if(dir == UP) return get_up(curr);
+    if(dir == DOWN) return get_down(curr);
+    if(dir == LEFT) return get_left(curr);
+    if(dir == RIGHT) return get_right(curr);
+}
+
+/*
+ * This function returns the direction that Cleitinho should face in order to
+ * move from the source point to the target point.
+ * 
+ * @param source The source point.
+ * @param target The target point.
+ */
+direction get_next_direction(direction source, direction target) {
+    int steps;
+
+    if (target == UP)
+        steps = 0;
+    else if (target == RIGHT)
+        steps = 1;
+    else if (target == DOWN)
+        steps = 2;
+    else if (target == LEFT)
+        steps = 3;
+    
+    return (direction) ((source + steps) % 4);
+}
+
+point get_next_position(point position, direction dir) {
+    return (point) {position.x + dir4[dir].x, position.y + dir4[dir].y};
 }

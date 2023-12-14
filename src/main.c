@@ -4,11 +4,15 @@
 
 #ifdef DEBUG
 #define DEBUG_TEST true
+#define MAX 11
 #else
 #define DEBUG_TEST false
+#define MAX 300
 #endif
 
-#define MAX 7
+#define debug(fmt, ...) \
+        do { if (DEBUG_TEST) fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, \
+                                __LINE__, __func__, __VA_ARGS__); } while (0)
 
 void solve() {
     cell grid[MAX][MAX];
@@ -23,8 +27,53 @@ void solve() {
     grid[position.x][position.y].visited = true;
 
     // We perform a depth-first search on the grid to find the exit.
-    dfs(MAX, grid, position, current_direction);
+    node *path = dfs(MAX, grid, position, &current_direction, NULL);
+
+    // Now that we have found the exit, we go back to the starting position.
+    node *reverse_path = node_insert(NULL, path->coords);
+
+    int last_x = path->coords.x, last_y = path->coords.y;
+    path = node_pop(path);
+
+    debug("%s", "Going back to the starting position...\n");
+    while (path != NULL) {
+        int x = path->coords.x, y = path->coords.y;
+        reverse_path = node_insert(reverse_path, path->coords);
+
+        point movement = {x - last_x, y - last_y};
+        last_x = x, last_y = y;
+
+        reverse_movement(&current_direction, movement);
+
+        path = node_pop(path);
+
+        if(DEBUG_TEST)
+            grid_print(MAX, grid, position, current_direction);
+    }
+
+    // We print the path that Cleitinho took to find the exit.
+    debug("%s", "Now going back to exit:\n");
+    reverse_path = node_pop(reverse_path);
+
+    while(reverse_path != NULL) {
+        int x = reverse_path->coords.x, y = reverse_path->coords.y;
+        point movement = {x - last_x, y - last_y};
+        last_x = x, last_y = y;
+
+        reverse_movement(&current_direction, movement);
+
+        reverse_path = node_pop(reverse_path);
+
+        if(DEBUG_TEST)
+            grid_print(MAX, grid, position, current_direction);
+    }
 }
+
+/*
+* Grid example:
+* [^S]
+* [EW]
+*/
 
 int main() {
     solve();
