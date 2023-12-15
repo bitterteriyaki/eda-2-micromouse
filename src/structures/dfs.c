@@ -24,6 +24,28 @@ void reverse_movement(direction *curr_dir, point movement, bool forward_enabled)
         }
 }
 
+void trigger_proximity_sensor(int size, cell grid[size][size], point position, direction current_direction) {
+    int response = ask('c');
+
+    response = ~response;
+
+    int x = position.x, y = position.y;
+
+    for(int i = 0; i < 4; i++) {
+        if(response&1) {
+            int direction = get_context(clockwise_positions[i], current_direction);
+            int opposite = get_down(direction);
+
+            int ox = x + dir4[direction].x, oy = y + dir4[direction].y;
+
+            grid[x][y].walls[direction] = true;
+            grid[ox][oy].walls[opposite] = true;
+        }
+
+        response >>= 1;
+    }
+}
+
 /*
  * This function performs a depth-first search on the grid to find the exit.
  *
@@ -116,9 +138,6 @@ node *dfs(
                     next_position.y,
                     symbols[opposite]
                 );
-
-                if (DEBUG_TEST)
-                    grid_print(size, grid, position, *current_direction);
 
                 continue;
             }

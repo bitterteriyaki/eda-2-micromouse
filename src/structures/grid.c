@@ -43,6 +43,9 @@ typedef struct {
 point dir4[] = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 char *symbols[] = {"↑", "←", "↓", "→"};
 
+// This array is used for the sensors, which use the following order:
+direction clockwise_positions[] = {UP, RIGHT, DOWN, LEFT};
+
 /*
  * This function initializes the grid by setting all of the walls of each cell
  * to false (i.e. there are no walls in the grid, so Cleitinho can move freely)
