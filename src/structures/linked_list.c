@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
-#include "../structures/grid.c"
+#include "../algorithms/grid.c"
 
 typedef struct node {
     point coords;

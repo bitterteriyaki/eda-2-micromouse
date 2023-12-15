@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdio.h>
-#include "../structures/grid.c"
-#include "../structures/directions.c"
+#include "../algorithms/grid.c"
+#include "../algorithms/directions.c"
 
 typedef enum {
     FAILED,

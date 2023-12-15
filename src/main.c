@@ -1,7 +1,7 @@
 #include <stdbool.h>
-#include "structures/grid.c"
-#include "structures/dfs.c"
-#include "algorithms/queue.c"
+#include "algorithms/grid.c"
+#include "algorithms/dfs.c"
+#include "structures/queue.c"
 
 #ifdef DEBUG
 #define DEBUG_TEST true

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <stdbool.h>
 #include "grid.c"
 #include "../utils/requests.c"
-#include "../algorithms/linked_list.c"
-#include <stdbool.h>
+#include "../structures/linked_list.c"
 
 #ifdef DEBUG
 #define DEBUG_TEST true
@@ -94,13 +94,14 @@ node *dfs(
             );
 
             int response = rotate_and_forward(*current_direction, next_direction, true);
+
             *current_direction = next_direction;
+            direction opposite = get_down(next_direction);
 
             if (DEBUG_TEST)
                 grid_print(size, grid, position, *current_direction);
 
             if (response == FAILED) {
-                direction opposite = get_down(next_direction);
                 grid[x][y].walls[next_direction] = true;
                 grid[next_position.x][next_position.y].walls[opposite] = true;
 
@@ -124,6 +125,9 @@ node *dfs(
             }
 
             grid[next_position.x][next_position.y].visited = true;
+            // There is NO walls between the current cell and the next cell.
+            grid[x][y].walls[next_direction] = 2;
+            grid[next_position.x][next_position.y].walls[opposite] = 2;
 
             if (response == EXIT) {
                 grid[next_position.x][next_position.y].is_exit = true;

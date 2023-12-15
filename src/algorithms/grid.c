@@ -11,12 +11,15 @@
  * a 2D array of cells, where each cell represents a single square in the grid
  * accessible by a single coordinate pair (x, y).
  *
- * The cell struct contains a boolean value for each of the four walls of the
+ * The cell struct contains a char array of size 4, where each index represents
+ * a direction. If the value of the value of the index is 0, then there may be
+ * a wall in that direction. If the value of the index is 1, there is a wall in
+ * that direction. Otherwise, there is no wall in that direction.
  * cell, as well as a boolean value for whether or not the cell has been
  * visited.
  */
 typedef struct {
-    bool walls[4];
+    char walls[4];
     bool visited;
     bool is_exit;
 } cell;
@@ -69,7 +72,7 @@ void _print_vertical_lines(int size, int i, cell grid[size][size]) {
     for (int j = 0; j < size; j++) {
         printf("+");
 
-        if (grid[i][j].walls[UP])
+        if (grid[i][j].walls[UP] == 1)
             printf("---");
         else
             printf("   ");
@@ -98,7 +101,7 @@ void _print_cells(
             printf("   ");
 
         if (j != size - 1)
-            if (grid[i - 1][j].walls[RIGHT])
+            if (grid[i - 1][j].walls[RIGHT] == 1)
                 printf("|");
             else
                 printf(" ");

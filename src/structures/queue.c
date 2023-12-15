@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 #include "linked_list.c"
-#include "../structures/grid.c"
+#include "../algorithms/grid.c"
 
 typedef struct {
     int size;
@@ -25,6 +25,7 @@ void queue_push(queue *q, point coords) {
     else {
         q->tail->next = node_create(coords);
         q->tail = q->tail->next;
+        q->tail->next = NULL;
     }
 
     q->size++;
@@ -37,7 +38,7 @@ point queue_pop(queue *q) {
     return coords;
 }
 
-bool queue_empty(queue *q) {
+bool queue_is_empty(queue *q) {
     return q->size == 0;
 }
 
