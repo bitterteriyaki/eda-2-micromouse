@@ -49,11 +49,6 @@ bfs_result bfs(
             dist[next.x][next.y] = dist[x][y] + 1;
             pred[next.x][next.y] = (point) {x, y};
 
-            // printf("grid[%d][%d].walls[%d] = %d\n", x, y, i, grid[x][y].walls[i]);
-            // printf("dist[%d][%d] = %d\n", next.x, next.y, dist[next.x][next.y]);
-            // printf("pred[%d][%d] = {%d, %d}\n", next.x, next.y, pred[next.x][next.y].x, pred[next.x][next.y].y);
-            // printf("---\n");
-
             queue_push(q, next);
         }
     }

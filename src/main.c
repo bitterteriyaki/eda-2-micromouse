@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include "algorithms/grid.c"
 #include "algorithms/dfs.c"
+#include "algorithms/bfs.c"
 #include "structures/queue.c"
 
 #ifdef DEBUG
@@ -37,65 +38,32 @@ void solve() {
     path = node_pop(path);
 
     debug("%s", "Going back to the starting position...\n");
-    while (path != NULL) {
-        int x = path->coords.x, y = path->coords.y;
-        reverse_path = node_insert(reverse_path, path->coords);
+
+    bfs_result result = bfs(MAX, grid, position, (point) {last_x, last_y});
+
+    // Use the BFS result to find the shortest path back to the starting
+    // position.
+
+    while (result.pred[last_x][last_y].x != -1) {
+        int x = result.pred[last_x][last_y].x;
+        int y = result.pred[last_x][last_y].y;
+        reverse_path = node_insert(reverse_path, (point) {x, y});
 
         point movement = {x - last_x, y - last_y};
         last_x = x, last_y = y;
 
         reverse_movement(&current_direction, movement, false);
-        path = node_pop(path);
-
         int forward = 1;
 
-        while (path != NULL) {
-            int xt = path->coords.x, yt = path->coords.y;
+        while (result.pred[last_x][last_y].x != -1) {
+            int xt = result.pred[last_x][last_y].x;
+            int yt = result.pred[last_x][last_y].y;
             point movementt = {xt - last_x, yt - last_y};
 
             if (movementt.x == movement.x && movementt.y == movement.y) {
                 forward++;
                 last_x = xt, last_y = yt;
-                reverse_path = node_insert(reverse_path, path->coords);
-                path = node_pop(path);
-            }
-            else
-                break;
-        }
-
-        for (int i = 4; i >= 1; i--) {
-            while (forward >= i) {
-                ask(movements[i]);
-                forward -= i;
-            }
-        }
-
-        if (DEBUG_TEST)
-            grid_print(MAX, grid, (point) {last_x, last_y }, current_direction);
-    }
-
-    // We print the path that Cleitinho took to find the exit.
-    debug("%s", "Now going back to exit:\n");
-    reverse_path = node_pop(reverse_path);
-
-    while (reverse_path != NULL) {
-        int x = reverse_path->coords.x, y = reverse_path->coords.y;
-        point movement = {x - last_x, y - last_y};
-        last_x = x, last_y = y;
-
-        reverse_movement(&current_direction, movement, false);
-        reverse_path = node_pop(reverse_path);
-
-        int forward = 1;
-
-        while (reverse_path != NULL) {
-            int xt = reverse_path->coords.x, yt = reverse_path->coords.y;
-            point movementt = {xt - last_x, yt - last_y};
-
-            if (movementt.x == movement.x && movementt.y == movement.y) {
-                forward++;
-                last_x = xt, last_y = yt;
-                reverse_path = node_pop(reverse_path);
+                reverse_path = node_insert(reverse_path, (point) {xt, yt});
             }
             else
                 break;
