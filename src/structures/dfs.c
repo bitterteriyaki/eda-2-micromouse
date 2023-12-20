@@ -24,6 +24,28 @@ void reverse_movement(direction *curr_dir, point movement, bool forward_enabled)
         }
 }
 
+void trigger_proximity_sensor(int size, cell grid[size][size], point position, direction current_direction) {
+    int response = ask('c');
+
+    response = ~response;
+
+    int x = position.x, y = position.y;
+
+    for(int i = 0; i < 4; i++) {
+        int rs = (response&1);
+        int direction = get_context(clockwise_positions[i], current_direction);
+        int opposite = get_down(direction);
+
+        int ox = x + dir4[direction].x, oy = y + dir4[direction].y;
+
+        grid[x][y].walls[direction] = rs;
+        grid[ox][oy].walls[opposite] = rs;
+
+
+        response >>= 1;
+    }
+}
+
 /*
  * This function performs a depth-first search on the grid to find the exit.
  *
@@ -53,6 +75,19 @@ node *dfs(
     node *exit = NULL;
 
     /*
+    * If we are at a "intersection", then we need to trigger the proximity
+    */
+    for(int i = 0; i <= 3; i++) {
+        direction next_direction = get_context(i, *current_direction);
+        point next_position = get_next_position(position, next_direction);
+
+        if (grid[x][y].walls[next_direction] == 2 && grid[next_position.x][next_position.y].visited) {
+            trigger_proximity_sensor(size, grid, position, *current_direction);
+            break;
+        }
+    }
+
+    /*
     * We give priority to moving forward. Then, we go to the other directions.
     * Once our direction may be changed, we try to move four times.
     */
@@ -66,7 +101,7 @@ node *dfs(
             * us, then we cannot move.
             */
 
-            if (grid[x][y].walls[next_direction])
+            if (grid[x][y].walls[next_direction] == 1)
                 debug(
                     "Wall found at (%d, %d). Cannot move to (%d, %d). Current Direction: %s. Next Direction: %s\n",
                     x,
@@ -76,11 +111,8 @@ node *dfs(
                     symbols[*current_direction],
                     symbols[next_direction]
                 );
-
-            if (
-                grid[next_position.x][next_position.y].visited
-                || grid[x][y].walls[next_direction]
-            )
+            
+            if (grid[x][y].walls[next_direction] == 1 || grid[next_position.x][next_position.y].visited)
                 continue;
 
             // Now we try to visit.
@@ -101,8 +133,8 @@ node *dfs(
 
             if (response == FAILED) {
                 direction opposite = get_down(next_direction);
-                grid[x][y].walls[next_direction] = true;
-                grid[next_position.x][next_position.y].walls[opposite] = true;
+                grid[x][y].walls[next_direction] = 1;
+                grid[next_position.x][next_position.y].walls[opposite] = 1;
 
                 debug(
                     "Set wall at (%d, %d) in direction %s\n",
@@ -116,13 +148,15 @@ node *dfs(
                     next_position.y,
                     symbols[opposite]
                 );
-
+                
                 if (DEBUG_TEST)
                     grid_print(size, grid, position, *current_direction);
 
                 continue;
             }
 
+            grid[x][y].walls[next_direction] = 0;
+            grid[next_position.x][next_position.y].walls[get_down(next_direction)] = 0;
             grid[next_position.x][next_position.y].visited = true;
 
             if (response == EXIT) {

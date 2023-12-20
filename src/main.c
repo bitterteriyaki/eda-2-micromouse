@@ -2,6 +2,7 @@
 #include "structures/grid.c"
 #include "structures/dfs.c"
 #include "algorithms/queue.c"
+#include "structures/dijkstra.c"
 
 #ifdef DEBUG
 #define DEBUG_TEST true
@@ -30,34 +31,45 @@ void solve() {
     // We perform a depth-first search on the grid to find the exit.
     node *path = dfs(MAX, grid, position, &current_direction, NULL);
 
-    // Now that we have found the exit, we go back to the starting position.
-    node *reverse_path = node_insert(NULL, path->coords);
+    dijkstra(MAX, grid, path->coords, position, current_direction);
 
-    int last_x = path->coords.x, last_y = path->coords.y;
-    path = node_pop(path);
+    // Now that we have the shortest path, we can print it.
+    node *p = node_insert(NULL, position);
 
-    debug("%s", "Going back to the starting position...\n");
-    while (path != NULL) {
-        int x = path->coords.x, y = path->coords.y;
-        reverse_path = node_insert(reverse_path, path->coords);
+    debug("Insert (%d, %d)\n", position.x, position.y);
+
+    do {
+        p = node_insert(p, pred[p->coords.x][p->coords.y]);
+        debug("Insert (%d, %d)\n", p->coords.x, p->coords.y);
+    } while (p->coords.x != pred[p->coords.x][p->coords.y].x ||
+             p->coords.y != pred[p->coords.x][p->coords.y].y);
+    
+    node *reverse_path = node_insert(NULL, p->coords);
+
+    int last_x = p->coords.x, last_y = p->coords.y;
+    p = node_pop(p);
+
+    while (p != NULL) {
+        int x = p->coords.x, y = p->coords.y;
+        reverse_path = node_insert(reverse_path, p->coords);
 
         point movement = {x - last_x, y - last_y};
         last_x = x, last_y = y;
 
         reverse_movement(&current_direction, movement, false);
-        path = node_pop(path);
+        p = node_pop(p);
 
         int forward = 1;
 
-        while (path != NULL) {
-            int xt = path->coords.x, yt = path->coords.y;
+        while (p != NULL) {
+            int xt = p->coords.x, yt = p->coords.y;
             point movementt = {xt - last_x, yt - last_y};
 
             if (movementt.x == movement.x && movementt.y == movement.y) {
                 forward++;
                 last_x = xt, last_y = yt;
-                reverse_path = node_insert(reverse_path, path->coords);
-                path = node_pop(path);
+                reverse_path = node_insert(reverse_path, p->coords);
+                p = node_pop(p);
             }
             else
                 break;
@@ -108,7 +120,7 @@ void solve() {
             }
 
         if (DEBUG_TEST)
-            grid_print(MAX, grid, position, current_direction);
+            grid_print(MAX, grid, (point){last_x, last_y}, current_direction);
     }
 }
 

@@ -16,7 +16,7 @@
  * visited.
  */
 typedef struct {
-    bool walls[4];
+    int walls[4];
     bool visited;
     bool is_exit;
 } cell;
@@ -43,6 +43,9 @@ typedef struct {
 point dir4[] = {{-1, 0}, {0, -1}, {1, 0}, {0, 1}};
 char *symbols[] = {"↑", "←", "↓", "→"};
 
+// This array is used for the sensors, which use the following order:
+direction clockwise_positions[] = {UP, RIGHT, DOWN, LEFT};
+
 /*
  * This function initializes the grid by setting all of the walls of each cell
  * to false (i.e. there are no walls in the grid, so Cleitinho can move freely)
@@ -55,7 +58,7 @@ char *symbols[] = {"↑", "←", "↓", "→"};
 void grid_init(int size, cell grid[size][size]) {
     for (int i = 0; i < size; i++)
         for (int j = 0; j < size; j++)
-            grid[i][j] = (cell) {{false, false, false, false}, false, false};
+            grid[i][j] = (cell) {{2, 2, 2, 2}, false, false};
 }
 
 
@@ -69,7 +72,7 @@ void _print_vertical_lines(int size, int i, cell grid[size][size]) {
     for (int j = 0; j < size; j++) {
         printf("+");
 
-        if (grid[i][j].walls[UP])
+        if (grid[i][j].walls[UP] == 1)
             printf("---");
         else
             printf("   ");
@@ -98,7 +101,7 @@ void _print_cells(
             printf("   ");
 
         if (j != size - 1)
-            if (grid[i - 1][j].walls[RIGHT])
+            if (grid[i - 1][j].walls[RIGHT] == 1)
                 printf("|");
             else
                 printf(" ");
