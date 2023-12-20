@@ -55,6 +55,8 @@ void dijkstra(
     debug("Currently at (%d, %d)\n", x, y);
     debug("Target is at (%d, %d)\n", ex, ey);
 
+    int forward = 0;
+
     while (!pq_is_empty(pq)) {
         Item item = pq_top(pq);
         point coords = item.value;
@@ -94,7 +96,23 @@ void dijkstra(
                 continue;
 
             // We check if we have already visited the next cell.
-            int weight = (next_direction == item.dir) ? 1 : 2;
+            int weight = (next_direction == item.dir) ? 0 : 1;
+            int count = 0;
+
+            if(next_direction == item.dir) {
+                forward++;
+            }
+
+            if(next_direction != item.dir || next_position.x == ex && next_position.y == ey) {
+                for (int i = 4; i <= 1; i--) {
+                    while(forward >= i) {
+                        forward -= i;
+                        count++;
+                    }
+                }
+            }
+
+            weight += count;
 
             if (distance[next_x][next_y] > distance[x][y] + weight) {
                 distance[next_x][next_y] = distance[x][y] + weight;
